@@ -8,8 +8,6 @@ echo 'https_proxy=' >> /etc/environment
 echo 'NO_PROXY=169.254.169.254,s3.amazonaws.com' >> /etc/environment
 echo 'no_proxy=169.254.169.254,s3.amazonaws.com' >> /etc/environment
 
-
-	######## set proxy for userdata script###########
 source /etc/environment
 touch /var/log/consul-server-cluster-join.log
 
@@ -42,12 +40,12 @@ WantedBy=multi-user.target
 EOF
 
 
-cat >> /tmp/config.json << 'FE2'
+cat >> /tmp/config.json << 'FE1'
 	{
 	  "bootstrap_expect": bse,
 	  "bind_addr": "biad",
 	  "datacenter": "us-east-1",
-	  "encrypt": "Z5LLuoLIIIkk5WPjUs3ngw==",
+	  "encrypt": "dhgtdbeftbaGFHSV==",
 	"log_level": "INFO",
 	"enable_syslog": true,
     "client_addr": "0.0.0.0",
@@ -69,14 +67,14 @@ cat >> /tmp/config.json << 'FE2'
 
 }
 	}
-FE2
+FE1
 
 
-echo "Create Consul installation directories..."
+echo "Create Consul  directories..."
 	mkdir -p /etc/consul.d
 	mkdir -p /mnt/consul
 
-echo "Fetch Consul..."
+echo "get Consul..."
 	cd /tmp
 	curl -O -k  <url>consul-0.0.9.zip
 	echo "Install Consul..."
@@ -87,7 +85,7 @@ echo "Fetch Consul..."
 
 
 
-echo "Update the Consul configuration file with entries for bind address, join address and server count.."
+echo "Update the Consul configiguration"
 	sed -i -- "s/bse/${SERVER_COUNT}/g" /tmp/config.json
 	sed -i -- "s/biad/${BIND}/g" /tmp/config.json
 
@@ -96,22 +94,22 @@ mv /tmp/config.json /etc/consul.d
 	chmod 0644 /etc/consul.d/config.json
 
 
-#Install the systemd file
+
 	mv /tmp/consul.service /lib/systemd/system
 	chown root:root /lib/systemd/system/consul.service
 	chmod 0644 /lib/systemd/system/consul.service
 
-#Start the consul agent
+
 systemctl enable consul.service
 service consul start
 systemctl status consul.service
 journalctl -xn
-#Download Cluster Script.sh
+
 
 cp /tmp/join-cluster.sh /usr/bin
 chown root:root /usr/bin/join-cluster.sh
 chmod 0755 /usr/bin/join-cluster.sh
-#Cluster Service
+
 cp  /tmp/join-cluster.service /lib/systemd/system
 chown root:root /lib/systemd/system/join-cluster.service
 chmod 0644 /lib/systemd/system/join-cluster.service
@@ -120,7 +118,7 @@ cp /tmp/join-cluster.timer /lib/systemd/system
 chown root:root /lib/systemd/system/join-cluster.timer
 chmod 0644 /lib/systemd/system/join-cluster.timer
 
-#Start the join-cluster service
+
 systemctl start join-cluster.timer
 systemctl enable join-cluster.timer
 
